@@ -28,6 +28,7 @@ Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/"
 Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup", MQTT_QOS_1);
 
 // ######## Sensor specific variables ######## BEGIN
+Adafruit_MQTT_Publish arduino_a0 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/arduino/a0");
 // ######## Sensor specific variables ######## END
 
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
@@ -84,6 +85,7 @@ void loop() {
   publish_success = true;
   if (x_timer == 0) {
 // ######## Sensor specific publish ######## BEGIN
+    arduino_a0.publish(analogRead(A0));
 // ######## Sensor specific publish ######## END
   }
   
