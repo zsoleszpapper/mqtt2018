@@ -20,6 +20,8 @@
 #include "Adafruit_MQTT_Client.h"
 
 // ######## Sensor specific includes ######## BEGIN
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
 // ######## Sensor specific includes ######## END
 
 WiFiClient client;
@@ -28,6 +30,9 @@ Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/"
 Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup", MQTT_QOS_1);
 
 // ######## Sensor specific variables ######## BEGIN
+Adafruit_BMP085 bmp;
+Adafruit_MQTT_Publish bmp_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/bmp/temperature");
+Adafruit_MQTT_Publish bmp_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/bmp/pressure");
 Adafruit_MQTT_Publish arduino_a0 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/arduino/a0");
 // ######## Sensor specific variables ######## END
 
@@ -51,6 +56,12 @@ void setup() {
   mqtt.subscribe(&my_hup);
   mqtt.subscribe(&global_hup);
 // ######## Sensor specific setup ######## BEGIN
+  if (!bmp.begin()) {
+#ifdef DEBUG
+    Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+#endif
+    while (1) {}
+  }
 // ######## Sensor specific setup ######## END
 }
 
@@ -85,6 +96,8 @@ void loop() {
   publish_success = true;
   if (x_timer == 0) {
 // ######## Sensor specific publish ######## BEGIN
+    bmp_temperature.publish(bmp.readTemperature());
+    bmp_pressure.publish(bmp.readPressure());
     arduino_a0.publish(analogRead(A0));
 // ######## Sensor specific publish ######## END
   }
