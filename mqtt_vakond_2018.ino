@@ -22,6 +22,7 @@
 // ######## Sensor specific includes ######## BEGIN
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
+#include "DHT.h"
 // ######## Sensor specific includes ######## END
 
 WiFiClient client;
@@ -33,6 +34,12 @@ Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME
 Adafruit_BMP085 bmp;
 Adafruit_MQTT_Publish bmp_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/bmp/temperature");
 Adafruit_MQTT_Publish bmp_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/bmp/pressure");
+
+#define DHTPIN 2     // what digital pin we're connected to
+#define DHTTYPE DHT11   // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+Adafruit_MQTT_Publish dht_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/dht/temperature");
+Adafruit_MQTT_Publish dht_humidity = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/dht/humidity");
 // ######## Sensor specific variables ######## END
 
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
@@ -61,6 +68,7 @@ void setup() {
 #endif
     while (1) {}
   }
+  dht.begin();
 // ######## Sensor specific setup ######## END
 }
 
@@ -94,6 +102,8 @@ void loop() {
 // ######## Sensor specific publish ######## BEGIN
     bmp_temperature.publish(bmp.readTemperature());
     bmp_pressure.publish(bmp.readPressure());
+    dht_temperature.publish(dht.readTemperature());
+    dht_humidity.publish(dht.readHumidity());
 // ######## Sensor specific publish ######## END
   }
   
