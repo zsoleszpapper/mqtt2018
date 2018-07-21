@@ -20,6 +20,8 @@
 #include "Adafruit_MQTT_Client.h"
 
 // ######## Sensor specific includes ######## BEGIN
+#include <OneWire.h>
+#include <DallasTemperature.h>
 // ######## Sensor specific includes ######## END
 
 WiFiClient client;
@@ -28,6 +30,9 @@ Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/"
 Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup", MQTT_QOS_1);
 
 // ######## Sensor specific variables ######## BEGIN
+OneWire  ds(4);
+DallasTemperature dallas(&ds);
+Adafruit_MQTT_Publish dallas00_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/dallas00/temperature");
 // ######## Sensor specific variables ######## END
 
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
@@ -50,6 +55,7 @@ void setup() {
   mqtt.subscribe(&my_hup);
   mqtt.subscribe(&global_hup);
 // ######## Sensor specific setup ######## BEGIN
+  dallas.begin();
 // ######## Sensor specific setup ######## END
 }
 
@@ -84,6 +90,8 @@ void loop() {
   publish_success = true;
   if (x_timer == 0) {
 // ######## Sensor specific publish ######## BEGIN
+    dallas.requestTemperatures();
+    dallas00_temperature.publish(dallas.getTempCByIndex(0));
 // ######## Sensor specific publish ######## END
   }
   
