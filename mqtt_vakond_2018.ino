@@ -24,8 +24,8 @@
 
 WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
-Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/hup");
-Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup");
+Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/hup", MQTT_QOS_1);
+Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup", MQTT_QOS_1);
 
 // ######## Sensor specific variables ######## BEGIN
 // ######## Sensor specific variables ######## END
@@ -67,8 +67,10 @@ void increment_timers() {
 // ######## Sensor specific functions ######## END
 
 void loop() {
-  MQTT_connect();
+  bool publish_success;
   Adafruit_MQTT_Subscribe *subscription;
+
+  MQTT_connect();
   while ((subscription = mqtt.readSubscription(TURNAROUND_SEC * 1000))) {
     if (subscription == &my_hup || subscription == &global_hup) {
 #ifdef DEBUG
@@ -79,12 +81,17 @@ void loop() {
     }
   }
 
+  publish_success = true;
   if (x_timer == 0) {
 // ######## Sensor specific publish ######## BEGIN
 // ######## Sensor specific publish ######## END
   }
   
   increment_timers();
+
+  if (!publish_success) {
+    x_timer = 0;
+  }
 
   // ping the server to keep the mqtt connection alive
   // NOT required if you are publishing once every KEEPALIVE seconds
