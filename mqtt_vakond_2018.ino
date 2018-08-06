@@ -32,8 +32,8 @@ Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME
 // ######## Sensor specific variables ######## BEGIN
 OneWire  ds(4);
 DallasTemperature dallas(&ds);
-Adafruit_MQTT_Publish dallas00_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/dallas00/temperature");
-Adafruit_MQTT_Publish arduino_a0 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/arduino/a0");
+Adafruit_MQTT_Publish dallas00_temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/dallas00/temperature", MQTT_QOS_1);
+Adafruit_MQTT_Publish arduino_a0 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/arduino/a0", MQTT_QOS_1);
 // ######## Sensor specific variables ######## END
 
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
@@ -92,12 +92,12 @@ void loop() {
   if (x_timer == 0) {
 // ######## Sensor specific publish ######## BEGIN
     dallas.requestTemperatures();
-    dallas00_temperature.publish(dallas.getTempCByIndex(0));
+    publish_success &= dallas00_temperature.publish(dallas.getTempCByIndex(0));
     int get_a0 = analogRead(A0);
 #ifdef A0_NORMALIZE
     get_a0 *= A0_NORMALIZE;
 #endif
-    arduino_a0.publish(get_a0);
+    publish_success &= arduino_a0.publish(get_a0);
 // ######## Sensor specific publish ######## END
   }
   
