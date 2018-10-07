@@ -23,7 +23,7 @@
 // ######## Sensor specific includes ######## END
 
 WiFiClient client;
-Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, "ADAFRUIT_" CLIENT_NAME, AIO_USERNAME, AIO_KEY);
 Adafruit_MQTT_Subscribe my_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/" CLIENT_NAME "/hup", MQTT_QOS_1);
 Adafruit_MQTT_Subscribe global_hup = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/global/hup", MQTT_QOS_1);
 
